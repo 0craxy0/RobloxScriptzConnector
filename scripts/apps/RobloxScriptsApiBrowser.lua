@@ -2,6 +2,7 @@
 -- Executor context required: game:HttpGet, loadstring and (optionally) setclipboard.
 
 local HttpService = game:GetService("HttpService")
+local ContextActionService = game:GetService("ContextActionService")
 local UserInputService = game:GetService("UserInputService")
 
 local API_BASE = "https://robloxscripts.com/api/v1/scripts"
@@ -92,13 +93,23 @@ local closeButton = make("TextButton", {
 	Parent = window,
 })
 
+local closeActionName = "RobloxScriptsApiBrowserClose_" .. HttpService:GenerateGUID(false)
 local function closeGui()
+	ContextActionService:UnbindAction(closeActionName)
 	gui:Destroy()
 end
 
 closeButton.MouseButton1Click:Connect(closeGui)
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if not gameProcessed and input.KeyCode == Enum.KeyCode.RightControl then
+ContextActionService:BindActionAtPriority(closeActionName, function(_, inputState)
+	if inputState == Enum.UserInputState.Begin then
+		closeGui()
+	end
+	return Enum.ContextActionResult.Sink
+end, false, 3000, Enum.KeyCode.RightControl, Enum.KeyCode.End)
+
+-- Fallback for executors that do not forward ContextActionService bindings.
+UserInputService.InputBegan:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.RightControl or input.KeyCode == Enum.KeyCode.End then
 		closeGui()
 	end
 end)
