@@ -4,6 +4,6 @@
 local REPOSITORY = "0craxy0/RobloxScriptzConnector"
 local BRANCH = "main"
 local PATH = "scripts/apps/RobloxScriptsApiBrowser.lua"
-local url = string.format("https://raw.githubusercontent.com/%s/%s/%s?v=context-close", REPOSITORY, BRANCH, PATH)
+local url = string.format("https://raw.githubusercontent.com/%s/%s/%s?v=f8-close", REPOSITORY, BRANCH, PATH)
 
 loadstring(game:HttpGet(url))()

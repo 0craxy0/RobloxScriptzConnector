@@ -3,6 +3,7 @@
 
 local HttpService = game:GetService("HttpService")
 local ContextActionService = game:GetService("ContextActionService")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local API_BASE = "https://robloxscripts.com/api/v1/scripts"
@@ -83,8 +84,8 @@ local title = make("TextLabel", {
 })
 
 local closeButton = make("TextButton", {
-	Size = UDim2.fromOffset(34, 34),
-	Position = UDim2.new(1, -40, 0, 4),
+	Size = UDim2.fromOffset(92, 30),
+	Position = UDim2.new(1, -100, 0, 6),
 	BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBold,
 	Text = "×",
@@ -92,6 +93,11 @@ local closeButton = make("TextButton", {
 	TextSize = 24,
 	Parent = window,
 })
+closeButton.Text = "Close [F8]"
+closeButton.TextSize = 12
+closeButton.BackgroundColor3 = Color3.fromRGB(174, 68, 86)
+closeButton.BackgroundTransparency = 0.12
+make("UICorner", { CornerRadius = UDim.new(0, 6), Parent = closeButton })
 
 local closeActionName = "RobloxScriptsApiBrowserClose_" .. HttpService:GenerateGUID(false)
 local function closeGui()
@@ -105,11 +111,18 @@ ContextActionService:BindActionAtPriority(closeActionName, function(_, inputStat
 		closeGui()
 	end
 	return Enum.ContextActionResult.Sink
-end, false, 3000, Enum.KeyCode.RightControl, Enum.KeyCode.End)
+end, false, 3000, Enum.KeyCode.RightControl, Enum.KeyCode.End, Enum.KeyCode.F8)
 
 -- Fallback for executors that do not forward ContextActionService bindings.
 UserInputService.InputBegan:Connect(function(input)
-	if input.KeyCode == Enum.KeyCode.RightControl or input.KeyCode == Enum.KeyCode.End then
+	if input.KeyCode == Enum.KeyCode.RightControl or input.KeyCode == Enum.KeyCode.End or input.KeyCode == Enum.KeyCode.F8 then
+		closeGui()
+	end
+end)
+
+-- Last-resort polling path for executors that suppress keyboard input events.
+RunService.Heartbeat:Connect(function()
+	if gui.Parent and UserInputService:IsKeyDown(Enum.KeyCode.F8) then
 		closeGui()
 	end
 end)
