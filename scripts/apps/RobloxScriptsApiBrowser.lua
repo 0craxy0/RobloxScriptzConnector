@@ -2,6 +2,7 @@
 -- Executor context required: game:HttpGet, loadstring and (optionally) setclipboard.
 
 local HttpService = game:GetService("HttpService")
+local UserInputService = game:GetService("UserInputService")
 
 local API_BASE = "https://robloxscripts.com/api/v1/scripts"
 local MAX_RESULTS = 50
@@ -90,8 +91,16 @@ local closeButton = make("TextButton", {
 	TextSize = 24,
 	Parent = window,
 })
-closeButton.MouseButton1Click:Connect(function()
+
+local function closeGui()
 	gui:Destroy()
+end
+
+closeButton.MouseButton1Click:Connect(closeGui)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if not gameProcessed and input.KeyCode == Enum.KeyCode.RightControl then
+		closeGui()
+	end
 end)
 
 local function createInput(placeholder, position, width, defaultText)
