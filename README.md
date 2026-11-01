@@ -14,6 +14,11 @@ Executor-ready Luau utilities for the public RobloxScripts.com API.
 
 The target executor must provide `game:HttpGet` and `loadstring`; clipboard buttons additionally require `setclipboard`.
 
+To run the script, execute:
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/0craxy0/RobloxScriptzConnector/refs/heads/main/scripts/loaders/RobloxScriptsApiBrowserLoader.lua"))()
+```
+
 ## API
 
 The implementation consumes `https://robloxscripts.com/api/v1/scripts`. The service is public, read-only, rate-limited, and returns executable loader strings. Review returned code before running it.
