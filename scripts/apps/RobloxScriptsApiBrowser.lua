@@ -5,6 +5,7 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
 
 local API_BASE = "https://robloxscripts.com/api/v1/scripts"
 local MAX_RESULTS = 50
@@ -107,6 +108,12 @@ UserInputService.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		dragging = false
 	end
+end)
+
+-- Some executors do not forward UserInputService.InputEnded for CoreGui.
+-- Mouse.Button1Up provides a reliable fallback for desktop executors.
+Mouse.Button1Up:Connect(function()
+	dragging = false
 end)
 
 local closeButton = make("TextButton", {
