@@ -100,6 +100,7 @@ local function createBentoCard(position, size, accent)
 		BackgroundColor3 = Color3.fromRGB(36, 48, 73),
 		BackgroundTransparency = 0.42,
 		BorderSizePixel = 0,
+		ClipsDescendants = true,
 		Parent = window,
 	})
 	make("UICorner", { CornerRadius = UDim.new(0, 9), Parent = card })
@@ -141,6 +142,35 @@ end
 
 createCardLabel("Discover scripts", discoveryCard)
 createCardLabel("Refine results", filterCard)
+
+local function addCardShine(card, color)
+	local overlay = make("Frame", {
+		Name = "CardShine",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = color,
+		BackgroundTransparency = 0,
+		BorderSizePixel = 0,
+		Active = false,
+		Selectable = false,
+		ZIndex = 1,
+		Parent = card,
+	})
+	return make("UIGradient", {
+		Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(0.43, 1),
+			NumberSequenceKeypoint.new(0.5, 0.94),
+			NumberSequenceKeypoint.new(0.57, 1),
+			NumberSequenceKeypoint.new(1, 1),
+		}),
+		Rotation = 18,
+		Offset = Vector2.new(-0.65, 0),
+		Parent = overlay,
+	})
+end
+
+local discoveryShine = addCardShine(discoveryCard, Color3.fromRGB(199, 224, 255))
+local filterShine = addCardShine(filterCard, Color3.fromRGB(231, 210, 255))
 closeButton.Text = "Hide [F8]"
 closeButton.TextSize = 12
 closeButton.BackgroundColor3 = Color3.fromRGB(174, 68, 86)
@@ -256,7 +286,7 @@ local results = make("ScrollingFrame", {
 make("UICorner", { CornerRadius = UDim.new(0, 7), Parent = results })
 make("UIStroke", { Color = Color3.fromRGB(132, 170, 235), Transparency = 0.72, Parent = results })
 
-make("TextLabel", {
+local feedLabel = make("TextLabel", {
 	Size = UDim2.fromOffset(300, 20),
 	Position = UDim2.fromOffset(20, 176),
 	BackgroundTransparency = 1,
@@ -299,38 +329,10 @@ make("TextLabel", {
 	Parent = results,
 })
 
--- A non-interactive reflective layer supplies the luxury glass highlight.
-local shine = make("Frame", {
-	Name = "ReflectiveShine",
-	Size = UDim2.new(1.35, 0, 1.35, 0),
-	Position = UDim2.new(-0.175, 0, -0.175, 0),
-	BackgroundColor3 = Color3.new(1, 1, 1),
-	BackgroundTransparency = 0,
-	BorderSizePixel = 0,
-	Active = false,
-	Selectable = false,
-	ZIndex = 50,
-	Parent = window,
-})
-local shineGradient = make("UIGradient", {
-	Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(119, 167, 255)),
-		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 244, 213)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(202, 157, 255)),
-	}),
-	Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.42, 1),
-		NumberSequenceKeypoint.new(0.5, 0.78),
-		NumberSequenceKeypoint.new(0.58, 1),
-		NumberSequenceKeypoint.new(1, 1),
-	}),
-	Rotation = 24,
-	Offset = Vector2.new(-0.75, 0),
-	Parent = shine,
-})
-
--- Roblox UI is planar; this simulates 3D tilt with restrained rotation and parallax shine.
+-- Only low-frequency decorative objects move; the window and interactive UI remain fixed.
+local discoveryBase = UDim2.fromOffset(16, 52)
+local filterBase = UDim2.fromOffset(446, 52)
+local feedBase = UDim2.fromOffset(20, 176)
 UserInputService.InputChanged:Connect(function(input)
 	if not gui.Enabled or input.UserInputType ~= Enum.UserInputType.MouseMovement then
 		return
@@ -344,11 +346,19 @@ UserInputService.InputChanged:Connect(function(input)
 	local normalizedY = (input.Position.Y - center.Y) / (size.Y / 2)
 	local inside = math.abs(normalizedX) <= 1.15 and math.abs(normalizedY) <= 1.15
 	if inside then
-		window.Rotation = math.clamp(normalizedX, -1, 1) * 1.35
-		shineGradient.Offset = Vector2.new(math.clamp(normalizedX, -1, 1) * 0.72, math.clamp(normalizedY, -1, 1) * 0.18)
+		local x = math.clamp(normalizedX, -1, 1)
+		local y = math.clamp(normalizedY, -1, 1)
+		discoveryCard.Position = discoveryBase + UDim2.fromOffset(x * 1.5, y)
+		filterCard.Position = filterBase + UDim2.fromOffset(-x * 1.25, -y * 0.75)
+		feedLabel.Position = feedBase + UDim2.fromOffset(x, 0)
+		discoveryShine.Offset = Vector2.new(x * 0.48, y * 0.08)
+		filterShine.Offset = Vector2.new(-x * 0.42, -y * 0.06)
 	else
-		window.Rotation = 0
-		shineGradient.Offset = Vector2.new(-0.75, 0)
+		discoveryCard.Position = discoveryBase
+		filterCard.Position = filterBase
+		feedLabel.Position = feedBase
+		discoveryShine.Offset = Vector2.new(-0.65, 0)
+		filterShine.Offset = Vector2.new(-0.65, 0)
 	end
 end)
 
