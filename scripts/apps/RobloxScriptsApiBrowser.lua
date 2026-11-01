@@ -120,9 +120,27 @@ local function createBentoCard(position, size, accent)
 	return card
 end
 
--- Bento tiles separate discovery controls from actions without adding visual weight.
-createBentoCard(UDim2.fromOffset(10, 42), UDim2.fromOffset(700, 44), Color3.fromRGB(139, 190, 255))
-createBentoCard(UDim2.fromOffset(10, 88), UDim2.fromOffset(700, 40), Color3.fromRGB(192, 156, 255))
+-- Two purpose-built bento tiles: discovery on the left, filtering on the right.
+local discoveryCard = createBentoCard(UDim2.fromOffset(16, 52), UDim2.fromOffset(422, 116), Color3.fromRGB(139, 190, 255))
+local filterCard = createBentoCard(UDim2.fromOffset(446, 52), UDim2.fromOffset(258, 116), Color3.fromRGB(192, 156, 255))
+
+local function createCardLabel(text, parent)
+	return make("TextLabel", {
+		Size = UDim2.new(1, -24, 0, 20),
+		Position = UDim2.fromOffset(12, 7),
+		BackgroundTransparency = 1,
+		Font = Enum.Font.GothamBold,
+		Text = string.upper(text),
+		TextColor3 = Color3.fromRGB(163, 190, 234),
+		TextSize = 10,
+		TextTransparency = 0.08,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = parent,
+	})
+end
+
+createCardLabel("Discover scripts", discoveryCard)
+createCardLabel("Refine results", filterCard)
 closeButton.Text = "Hide [F8]"
 closeButton.TextSize = 12
 closeButton.BackgroundColor3 = Color3.fromRGB(174, 68, 86)
@@ -171,15 +189,15 @@ local function createInput(placeholder, position, width, defaultText)
 	return input
 end
 
-local queryInput = createInput("Search scripts (e.g. blox fruits)", UDim2.fromOffset(16, 48), 320)
-local gameInput = createInput("Game name or PlaceId", UDim2.fromOffset(344, 48), 190)
-local limitInput = createInput("Limit", UDim2.fromOffset(542, 48), 62, "10")
+local queryInput = createInput("Search scripts (e.g. blox fruits)", UDim2.fromOffset(28, 82), 398)
+local gameInput = createInput("Game or PlaceId", UDim2.fromOffset(458, 82), 150)
+local limitInput = createInput("Limit", UDim2.fromOffset(616, 82), 76, "10")
 
 local sortModes = { "newest", "oldest", "most-liked", "most-viewed", "trending", "title-asc", "title-desc" }
 local sortIndex = 1
 local sortButton = make("TextButton", {
-	Size = UDim2.fromOffset(96, 34),
-	Position = UDim2.fromOffset(612, 48),
+	Size = UDim2.fromOffset(234, 34),
+	Position = UDim2.fromOffset(458, 124),
 	BackgroundColor3 = Color3.fromRGB(43, 57, 82),
 	BackgroundTransparency = 0.3,
 	BorderSizePixel = 0,
@@ -197,8 +215,8 @@ sortButton.MouseButton1Click:Connect(function()
 end)
 
 local searchButton = make("TextButton", {
-	Size = UDim2.fromOffset(120, 34),
-	Position = UDim2.fromOffset(16, 92),
+	Size = UDim2.fromOffset(110, 34),
+	Position = UDim2.fromOffset(28, 124),
 	BackgroundColor3 = Color3.fromRGB(74, 118, 255),
 	BackgroundTransparency = 0.08,
 	BorderSizePixel = 0,
@@ -212,8 +230,8 @@ make("UICorner", { CornerRadius = UDim.new(0, 6), Parent = searchButton })
 make("UIStroke", { Color = Color3.fromRGB(175, 205, 255), Transparency = 0.48, Parent = searchButton })
 
 local status = make("TextLabel", {
-	Size = UDim2.new(1, -160, 0, 34),
-	Position = UDim2.fromOffset(148, 92),
+	Size = UDim2.fromOffset(276, 34),
+	Position = UDim2.fromOffset(150, 124),
 	BackgroundTransparency = 1,
 	Font = Enum.Font.Gotham,
 	Text = "Ready — enter a query and press Search.",
@@ -225,8 +243,8 @@ local status = make("TextLabel", {
 status.Text = "Ready - enter a query and press Search."
 
 local results = make("ScrollingFrame", {
-	Size = UDim2.new(1, -32, 1, -142),
-	Position = UDim2.fromOffset(16, 132),
+	Size = UDim2.new(1, -32, 1, -216),
+	Position = UDim2.fromOffset(16, 200),
 	BackgroundColor3 = Color3.fromRGB(33, 44, 67),
 	BackgroundTransparency = 0.28,
 	BorderSizePixel = 0,
@@ -237,12 +255,47 @@ local results = make("ScrollingFrame", {
 })
 make("UICorner", { CornerRadius = UDim.new(0, 7), Parent = results })
 make("UIStroke", { Color = Color3.fromRGB(132, 170, 235), Transparency = 0.72, Parent = results })
+
+make("TextLabel", {
+	Size = UDim2.fromOffset(300, 20),
+	Position = UDim2.fromOffset(20, 176),
+	BackgroundTransparency = 1,
+	Font = Enum.Font.GothamBold,
+	Text = "DISCOVERY FEED",
+	TextColor3 = Color3.fromRGB(170, 197, 240),
+	TextSize = 10,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	Parent = window,
+})
 local listLayout = make("UIListLayout", { Padding = UDim.new(0, 6), Parent = results })
 make("UIPadding", {
 	PaddingTop = UDim.new(0, 8),
 	PaddingBottom = UDim.new(0, 8),
 	PaddingLeft = UDim.new(0, 8),
 	PaddingRight = UDim.new(0, 8),
+	Parent = results,
+})
+
+make("TextLabel", {
+	Name = "EmptyTitle",
+	Size = UDim2.new(1, 0, 0, 44),
+	BackgroundTransparency = 1,
+	Font = Enum.Font.GothamBold,
+	Text = "A curated library, one search away.",
+	TextColor3 = Color3.fromRGB(220, 229, 248),
+	TextSize = 17,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	Parent = results,
+})
+make("TextLabel", {
+	Name = "EmptySubtitle",
+	Size = UDim2.new(1, 0, 0, 30),
+	BackgroundTransparency = 1,
+	Font = Enum.Font.Gotham,
+	Text = "Search by title, game, or PlaceId. Results appear here.",
+	TextColor3 = Color3.fromRGB(143, 158, 187),
+	TextSize = 12,
+	TextXAlignment = Enum.TextXAlignment.Left,
 	Parent = results,
 })
 
@@ -267,9 +320,9 @@ local shineGradient = make("UIGradient", {
 	}),
 	Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.39, 1),
-		NumberSequenceKeypoint.new(0.5, 0.9),
-		NumberSequenceKeypoint.new(0.61, 1),
+		NumberSequenceKeypoint.new(0.42, 1),
+		NumberSequenceKeypoint.new(0.5, 0.78),
+		NumberSequenceKeypoint.new(0.58, 1),
 		NumberSequenceKeypoint.new(1, 1),
 	}),
 	Rotation = 24,
