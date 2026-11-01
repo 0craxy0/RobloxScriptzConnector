@@ -101,7 +101,7 @@ local function beginDrag(input)
 end
 
 local function updateDrag(input)
-	if not dragState.active or input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then
+	if not dragState.active or (input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch) then
 		return
 	end
 
