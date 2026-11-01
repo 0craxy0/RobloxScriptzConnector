@@ -40,8 +40,6 @@ local window = make("Frame", {
 	BackgroundColor3 = Color3.fromRGB(21, 29, 47),
 	BackgroundTransparency = 0.16,
 	BorderSizePixel = 0,
-	Active = true,
-	Draggable = true,
 	Parent = gui,
 })
 make("UICorner", { CornerRadius = UDim.new(0, 10), Parent = window })
