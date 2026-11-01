@@ -40,11 +40,36 @@ local window = make("Frame", {
 	Name = "Window",
 	Size = UDim2.fromOffset(720, 505),
 	Position = UDim2.new(0.5, -360, 0.5, -252),
-	BackgroundColor3 = Color3.fromRGB(20, 22, 30),
+	BackgroundColor3 = Color3.fromRGB(21, 29, 47),
+	BackgroundTransparency = 0.16,
 	BorderSizePixel = 0,
 	Parent = gui,
 })
 make("UICorner", { CornerRadius = UDim.new(0, 10), Parent = window })
+make("UIStroke", {
+	Color = Color3.fromRGB(140, 186, 255),
+	Transparency = 0.42,
+	Thickness = 1,
+	Parent = window,
+})
+make("UIGradient", {
+	Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(49, 72, 111)),
+		ColorSequenceKeypoint.new(0.48, Color3.fromRGB(21, 29, 47)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(37, 28, 65)),
+	}),
+	Rotation = 35,
+	Parent = window,
+})
+
+local titleBar = make("Frame", {
+	Name = "TitleBar",
+	Size = UDim2.new(1, -52, 0, 42),
+	Position = UDim2.fromOffset(0, 0),
+	BackgroundTransparency = 1,
+	Active = true,
+	Parent = window,
+})
 
 local titleDragArea = make("TextButton", {
 	Size = UDim2.new(1, -48, 0, 42),
@@ -67,8 +92,35 @@ local title = make("TextLabel", {
 	TextColor3 = Color3.fromRGB(240, 242, 255),
 	TextSize = 18,
 	TextXAlignment = Enum.TextXAlignment.Left,
-	Parent = window,
+	Parent = titleBar,
 })
+
+-- Manual dragging works across executor UIs and avoids deprecated Frame.Draggable.
+local dragInput
+local dragStart
+local startPosition
+titleBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragStart = input.Position
+		startPosition = window.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragInput = nil
+			end
+		end)
+	end
+end)
+titleBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragStart and startPosition then
+		local delta = input.Position - dragStart
+		window.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + delta.X, startPosition.Y.Scale, startPosition.Y.Offset + delta.Y)
+	end
+end)
 
 local closeButton = make("TextButton", {
 	Size = UDim2.fromOffset(34, 34),
@@ -129,7 +181,8 @@ local function createInput(placeholder, position, width, defaultText)
 	local input = make("TextBox", {
 		Size = UDim2.fromOffset(width, 34),
 		Position = position,
-		BackgroundColor3 = Color3.fromRGB(34, 38, 50),
+		BackgroundColor3 = Color3.fromRGB(43, 57, 82),
+		BackgroundTransparency = 0.3,
 		BorderSizePixel = 0,
 		ClearTextOnFocus = false,
 		Font = Enum.Font.Gotham,
@@ -142,6 +195,7 @@ local function createInput(placeholder, position, width, defaultText)
 		Parent = window,
 	})
 	make("UICorner", { CornerRadius = UDim.new(0, 6), Parent = input })
+	make("UIStroke", { Color = Color3.fromRGB(134, 174, 239), Transparency = 0.7, Parent = input })
 	make("UIPadding", {
 		PaddingLeft = UDim.new(0, 10),
 		PaddingRight = UDim.new(0, 10),
@@ -159,7 +213,8 @@ local sortIndex = 1
 local sortButton = make("TextButton", {
 	Size = UDim2.fromOffset(96, 34),
 	Position = UDim2.fromOffset(612, 48),
-	BackgroundColor3 = Color3.fromRGB(34, 38, 50),
+	BackgroundColor3 = Color3.fromRGB(43, 57, 82),
+	BackgroundTransparency = 0.3,
 	BorderSizePixel = 0,
 	Font = Enum.Font.Gotham,
 	Text = "Sort: newest",
@@ -168,6 +223,7 @@ local sortButton = make("TextButton", {
 	Parent = window,
 })
 make("UICorner", { CornerRadius = UDim.new(0, 6), Parent = sortButton })
+make("UIStroke", { Color = Color3.fromRGB(134, 174, 239), Transparency = 0.7, Parent = sortButton })
 sortButton.MouseButton1Click:Connect(function()
 	sortIndex = (sortIndex % #sortModes) + 1
 	sortButton.Text = "Sort: " .. sortModes[sortIndex]
@@ -176,7 +232,8 @@ end)
 local searchButton = make("TextButton", {
 	Size = UDim2.fromOffset(120, 34),
 	Position = UDim2.fromOffset(16, 92),
-	BackgroundColor3 = Color3.fromRGB(79, 112, 255),
+	BackgroundColor3 = Color3.fromRGB(74, 118, 255),
+	BackgroundTransparency = 0.08,
 	BorderSizePixel = 0,
 	Font = Enum.Font.GothamBold,
 	Text = "Search",
@@ -185,6 +242,7 @@ local searchButton = make("TextButton", {
 	Parent = window,
 })
 make("UICorner", { CornerRadius = UDim.new(0, 6), Parent = searchButton })
+make("UIStroke", { Color = Color3.fromRGB(175, 205, 255), Transparency = 0.48, Parent = searchButton })
 
 local status = make("TextLabel", {
 	Size = UDim2.new(1, -160, 0, 34),
@@ -201,7 +259,8 @@ local status = make("TextLabel", {
 local results = make("ScrollingFrame", {
 	Size = UDim2.new(1, -32, 1, -142),
 	Position = UDim2.fromOffset(16, 132),
-	BackgroundColor3 = Color3.fromRGB(27, 30, 40),
+	BackgroundColor3 = Color3.fromRGB(33, 44, 67),
+	BackgroundTransparency = 0.28,
 	BorderSizePixel = 0,
 	CanvasSize = UDim2.new(),
 	AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -209,6 +268,7 @@ local results = make("ScrollingFrame", {
 	Parent = window,
 })
 make("UICorner", { CornerRadius = UDim.new(0, 7), Parent = results })
+make("UIStroke", { Color = Color3.fromRGB(132, 170, 235), Transparency = 0.72, Parent = results })
 local listLayout = make("UIListLayout", { Padding = UDim.new(0, 6), Parent = results })
 make("UIPadding", {
 	PaddingTop = UDim.new(0, 8),
@@ -229,11 +289,13 @@ end
 local function showResult(scriptData)
 	local row = make("Frame", {
 		Size = UDim2.new(1, 0, 0, 75),
-		BackgroundColor3 = Color3.fromRGB(37, 41, 54),
+		BackgroundColor3 = Color3.fromRGB(57, 73, 105),
+		BackgroundTransparency = 0.34,
 		BorderSizePixel = 0,
 		Parent = results,
 	})
 	make("UICorner", { CornerRadius = UDim.new(0, 6), Parent = row })
+	make("UIStroke", { Color = Color3.fromRGB(145, 183, 246), Transparency = 0.8, Parent = row })
 
 	local access = scriptData.accessType or "unknown"
 	local author = scriptData.author and scriptData.author.username or "unknown"
