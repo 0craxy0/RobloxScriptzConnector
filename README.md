@@ -28,4 +28,4 @@ The implementation consumes `https://robloxscripts.com/api/v1/scripts`. The serv
 
 ## Permanent loader
 
-Keep the loader line once. It fetches the current `main` application with a unique cache key, so future repository updates do not require a new script URL.
+Keep the loader line once. It resolves `main` through GitHub's API and then fetches the application from the returned immutable commit SHA, avoiding stale raw-file caches.
