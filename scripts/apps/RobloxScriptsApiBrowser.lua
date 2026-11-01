@@ -3,6 +3,7 @@
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 local API_BASE = "https://robloxscripts.com/api/v1/scripts"
@@ -45,6 +46,18 @@ local window = make("Frame", {
 })
 make("UICorner", { CornerRadius = UDim.new(0, 10), Parent = window })
 
+local titleDragArea = make("TextButton", {
+	Size = UDim2.new(1, -48, 0, 42),
+	Position = UDim2.fromOffset(0, 0),
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	AutoButtonColor = false,
+	Text = "",
+	Active = true,
+	Selectable = true,
+	Parent = window,
+})
+
 local title = make("TextLabel", {
 	Size = UDim2.new(1, -48, 0, 42),
 	Position = UDim2.fromOffset(16, 0),
@@ -70,6 +83,47 @@ local closeButton = make("TextButton", {
 closeButton.MouseButton1Click:Connect(function()
 	gui:Destroy()
 end)
+
+local dragState = {
+	active = false,
+	startMousePosition = Vector2.zero,
+	startWindowPosition = UDim2.new(),
+}
+
+local function beginDrag(input)
+	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
+		return
+	end
+
+	dragState.active = true
+	dragState.startMousePosition = input.Position
+	dragState.startWindowPosition = window.Position
+end
+
+local function updateDrag(input)
+	if not dragState.active or input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then
+		return
+	end
+
+	local delta = input.Position - dragState.startMousePosition
+	local current = dragState.startWindowPosition
+	window.Position = UDim2.new(current.X.Scale, current.X.Offset + delta.X, current.Y.Scale, current.Y.Offset + delta.Y)
+end
+
+local function endDrag(input)
+	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
+		return
+	end
+
+	dragState.active = false
+end
+
+titleDragArea.InputBegan:Connect(beginDrag)
+titleDragArea.InputChanged:Connect(updateDrag)
+titleDragArea.InputEnded:Connect(endDrag)
+title.InputBegan:Connect(beginDrag)
+title.InputChanged:Connect(updateDrag)
+title.InputEnded:Connect(endDrag)
 
 local function createInput(placeholder, position, width, defaultText)
 	local input = make("TextBox", {
