@@ -1,0 +1,8 @@
+# Editor and operating-system artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local executor configuration or test files
+*.local.lua
+*.log
