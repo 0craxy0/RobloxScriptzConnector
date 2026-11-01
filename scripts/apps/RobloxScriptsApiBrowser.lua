@@ -84,29 +84,28 @@ local title = make("TextLabel", {
 })
 
 -- Manual dragging works across executor UIs and avoids deprecated Frame.Draggable.
-local dragInput
+local dragging = false
 local dragStart
 local startPosition
+
 titleBar.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
 		dragStart = input.Position
 		startPosition = window.Position
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragInput = nil
-			end
-		end)
 	end
 end)
-titleBar.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-		dragInput = input
-	end
-end)
+
 UserInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragStart and startPosition then
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragStart and startPosition then
 		local delta = input.Position - dragStart
 		window.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + delta.X, startPosition.Y.Scale, startPosition.Y.Offset + delta.Y)
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = false
 	end
 end)
 
