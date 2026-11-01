@@ -2,10 +2,6 @@
 -- Executor context required: game:HttpGet, loadstring and (optionally) setclipboard.
 
 local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
 
 local API_BASE = "https://robloxscripts.com/api/v1/scripts"
 local MAX_RESULTS = 50
@@ -44,6 +40,8 @@ local window = make("Frame", {
 	BackgroundColor3 = Color3.fromRGB(21, 29, 47),
 	BackgroundTransparency = 0.16,
 	BorderSizePixel = 0,
+	Active = true,
+	Draggable = true,
 	Parent = gui,
 })
 make("UICorner", { CornerRadius = UDim.new(0, 10), Parent = window })
@@ -83,38 +81,6 @@ local title = make("TextLabel", {
 	TextXAlignment = Enum.TextXAlignment.Left,
 	Parent = titleBar,
 })
-
--- Manual dragging works across executor UIs and avoids deprecated Frame.Draggable.
-local dragging = false
-local dragStart
-local startPosition
-
-titleBar.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = true
-		dragStart = input.Position
-		startPosition = window.Position
-	end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragStart and startPosition then
-		local delta = input.Position - dragStart
-		window.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + delta.X, startPosition.Y.Scale, startPosition.Y.Offset + delta.Y)
-	end
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = false
-	end
-end)
-
--- Some executors do not forward UserInputService.InputEnded for CoreGui.
--- Mouse.Button1Up provides a reliable fallback for desktop executors.
-Mouse.Button1Up:Connect(function()
-	dragging = false
-end)
 
 local closeButton = make("TextButton", {
 	Size = UDim2.fromOffset(34, 34),
