@@ -41,6 +41,7 @@ local window = make("Frame", {
 	BackgroundColor3 = Color3.fromRGB(21, 29, 47),
 	BackgroundTransparency = 0.16,
 	BorderSizePixel = 0,
+	ClipsDescendants = true,
 	Parent = gui,
 })
 make("UICorner", { CornerRadius = UDim.new(0, 10), Parent = window })
@@ -91,6 +92,37 @@ local closeButton = make("TextButton", {
 	TextSize = 24,
 	Parent = window,
 })
+
+local function createBentoCard(position, size, accent)
+	local card = make("Frame", {
+		Position = position,
+		Size = size,
+		BackgroundColor3 = Color3.fromRGB(36, 48, 73),
+		BackgroundTransparency = 0.42,
+		BorderSizePixel = 0,
+		Parent = window,
+	})
+	make("UICorner", { CornerRadius = UDim.new(0, 9), Parent = card })
+	make("UIStroke", {
+		Color = accent,
+		Transparency = 0.78,
+		Thickness = 1,
+		Parent = card,
+	})
+	make("UIGradient", {
+		Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(77, 102, 145)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 39, 61)),
+		}),
+		Rotation = 20,
+		Parent = card,
+	})
+	return card
+end
+
+-- Bento tiles separate discovery controls from actions without adding visual weight.
+createBentoCard(UDim2.fromOffset(10, 42), UDim2.fromOffset(700, 44), Color3.fromRGB(139, 190, 255))
+createBentoCard(UDim2.fromOffset(10, 88), UDim2.fromOffset(700, 40), Color3.fromRGB(192, 156, 255))
 closeButton.Text = "Hide [F8]"
 closeButton.TextSize = 12
 closeButton.BackgroundColor3 = Color3.fromRGB(174, 68, 86)
@@ -190,6 +222,7 @@ local status = make("TextLabel", {
 	TextXAlignment = Enum.TextXAlignment.Left,
 	Parent = window,
 })
+status.Text = "Ready - enter a query and press Search."
 
 local results = make("ScrollingFrame", {
 	Size = UDim2.new(1, -32, 1, -142),
@@ -212,6 +245,59 @@ make("UIPadding", {
 	PaddingRight = UDim.new(0, 8),
 	Parent = results,
 })
+
+-- A non-interactive reflective layer supplies the luxury glass highlight.
+local shine = make("Frame", {
+	Name = "ReflectiveShine",
+	Size = UDim2.new(1.35, 0, 1.35, 0),
+	Position = UDim2.new(-0.175, 0, -0.175, 0),
+	BackgroundColor3 = Color3.new(1, 1, 1),
+	BackgroundTransparency = 0,
+	BorderSizePixel = 0,
+	Active = false,
+	Selectable = false,
+	ZIndex = 50,
+	Parent = window,
+})
+local shineGradient = make("UIGradient", {
+	Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(119, 167, 255)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 244, 213)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(202, 157, 255)),
+	}),
+	Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.39, 1),
+		NumberSequenceKeypoint.new(0.5, 0.9),
+		NumberSequenceKeypoint.new(0.61, 1),
+		NumberSequenceKeypoint.new(1, 1),
+	}),
+	Rotation = 24,
+	Offset = Vector2.new(-0.75, 0),
+	Parent = shine,
+})
+
+-- Roblox UI is planar; this simulates 3D tilt with restrained rotation and parallax shine.
+UserInputService.InputChanged:Connect(function(input)
+	if not gui.Enabled or input.UserInputType ~= Enum.UserInputType.MouseMovement then
+		return
+	end
+	local size = window.AbsoluteSize
+	if size.X <= 0 or size.Y <= 0 then
+		return
+	end
+	local center = window.AbsolutePosition + (size / 2)
+	local normalizedX = (input.Position.X - center.X) / (size.X / 2)
+	local normalizedY = (input.Position.Y - center.Y) / (size.Y / 2)
+	local inside = math.abs(normalizedX) <= 1.15 and math.abs(normalizedY) <= 1.15
+	if inside then
+		window.Rotation = math.clamp(normalizedX, -1, 1) * 1.35
+		shineGradient.Offset = Vector2.new(math.clamp(normalizedX, -1, 1) * 0.72, math.clamp(normalizedY, -1, 1) * 0.18)
+	else
+		window.Rotation = 0
+		shineGradient.Offset = Vector2.new(-0.75, 0)
+	end
+end)
 
 local function clearResults()
 	for _, child in ipairs(results:GetChildren()) do
