@@ -3,7 +3,6 @@
 
 local HttpService = game:GetService("HttpService")
 local ContextActionService = game:GetService("ContextActionService")
-local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local API_BASE = "https://robloxscripts.com/api/v1/scripts"
@@ -116,13 +115,6 @@ end, false, 3000, Enum.KeyCode.RightControl, Enum.KeyCode.End, Enum.KeyCode.F8)
 -- Fallback for executors that do not forward ContextActionService bindings.
 UserInputService.InputBegan:Connect(function(input)
 	if input.KeyCode == Enum.KeyCode.RightControl or input.KeyCode == Enum.KeyCode.End or input.KeyCode == Enum.KeyCode.F8 then
-		closeGui()
-	end
-end)
-
--- Last-resort polling path for executors that suppress keyboard input events.
-RunService.Heartbeat:Connect(function()
-	if gui.Parent and UserInputService:IsKeyDown(Enum.KeyCode.F8) then
 		closeGui()
 	end
 end)
