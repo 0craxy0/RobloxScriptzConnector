@@ -13,7 +13,7 @@ Executor-ready Luau utilities for the public RobloxScripts.com API.
 `scripts/apps/RobloxScriptsApiBrowser.lua` opens a search GUI for the public API. It supports a free-text query, game name or PlaceId filter, a 1–50 result limit, sort selection, clipboard copying, and selected-result execution.
 
 The target executor must provide `game:HttpGet` and `loadstring`; clipboard buttons additionally require `setclipboard`.
-Press **F8**, **Right Control**, or **End** to close the browser GUI, or use the visible close button.
+Press **F8**, **Right Control**, or **End** to hide or reopen the existing browser GUI. The visible button hides it without destroying it.
 
 To run the script, execute:
 ```lua

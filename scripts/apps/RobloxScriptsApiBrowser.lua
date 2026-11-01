@@ -2,7 +2,6 @@
 -- Executor context required: game:HttpGet, loadstring and (optionally) setclipboard.
 
 local HttpService = game:GetService("HttpService")
-local ContextActionService = game:GetService("ContextActionService")
 local UserInputService = game:GetService("UserInputService")
 
 local API_BASE = "https://robloxscripts.com/api/v1/scripts"
@@ -92,30 +91,24 @@ local closeButton = make("TextButton", {
 	TextSize = 24,
 	Parent = window,
 })
-closeButton.Text = "Close [F8]"
+closeButton.Text = "Hide [F8]"
 closeButton.TextSize = 12
 closeButton.BackgroundColor3 = Color3.fromRGB(174, 68, 86)
 closeButton.BackgroundTransparency = 0.12
 make("UICorner", { CornerRadius = UDim.new(0, 6), Parent = closeButton })
 
-local closeActionName = "RobloxScriptsApiBrowserClose_" .. HttpService:GenerateGUID(false)
-local function closeGui()
-	ContextActionService:UnbindAction(closeActionName)
-	gui:Destroy()
+local function hideGui()
+	gui.Enabled = false
 end
 
-closeButton.MouseButton1Click:Connect(closeGui)
-ContextActionService:BindActionAtPriority(closeActionName, function(_, inputState)
-	if inputState == Enum.UserInputState.Begin then
-		closeGui()
-	end
-	return Enum.ContextActionResult.Sink
-end, false, 3000, Enum.KeyCode.RightControl, Enum.KeyCode.End, Enum.KeyCode.F8)
+local function toggleGui()
+	gui.Enabled = not gui.Enabled
+end
 
--- Fallback for executors that do not forward ContextActionService bindings.
+closeButton.MouseButton1Click:Connect(hideGui)
 UserInputService.InputBegan:Connect(function(input)
 	if input.KeyCode == Enum.KeyCode.RightControl or input.KeyCode == Enum.KeyCode.End or input.KeyCode == Enum.KeyCode.F8 then
-		closeGui()
+		toggleGui()
 	end
 end)
 
