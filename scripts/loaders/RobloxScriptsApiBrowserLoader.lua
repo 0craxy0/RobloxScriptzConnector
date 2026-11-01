@@ -4,6 +4,7 @@
 local REPOSITORY = "0craxy0/RobloxScriptzConnector"
 local BRANCH = "main"
 local PATH = "scripts/apps/RobloxScriptsApiBrowser.lua"
-local url = string.format("https://raw.githubusercontent.com/%s/%s/%s?v=gui-toggle", REPOSITORY, BRANCH, PATH)
+local cacheKey = tostring(os.time()) .. "-" .. tostring(math.random(100000, 999999))
+local url = string.format("https://raw.githubusercontent.com/%s/%s/%s?cache=%s", REPOSITORY, BRANCH, PATH, cacheKey)
 
 loadstring(game:HttpGet(url))()

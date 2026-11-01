@@ -23,3 +23,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/0craxy0/RobloxScriptz
 ## API
 
 The implementation consumes `https://robloxscripts.com/api/v1/scripts`. The service is public, read-only, rate-limited, and returns executable loader strings. Review returned code before running it.
+
+## Permanent loader
+
+Keep the loader line once. It fetches the current `main` application with a unique cache key, so future repository updates do not require a new script URL.
